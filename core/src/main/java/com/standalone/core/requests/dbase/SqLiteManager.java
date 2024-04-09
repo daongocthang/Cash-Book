@@ -4,7 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.standalone.droid.utils.StorageUtils;
+
+import com.standalone.core.utils.StorageUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

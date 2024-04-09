@@ -11,7 +11,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SqLiteBase<T> {
+public abstract class SqLiteBase<T> {
 
     final SQLiteDatabase db;
     final String tableName;
@@ -131,4 +131,8 @@ public class SqLiteBase<T> {
         assert type != null;
         return (Class<T>) type.getActualTypeArguments()[0];
     }
+
+    public abstract void insert(T t);
+    public abstract void update(T t);
+    public abstract void remove(int id);
 }
