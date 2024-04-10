@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
     <EditText
         android:id="@+id/edt"
         android:layout_width="match_parent"
@@ -12,13 +11,16 @@
         android:layout_alignParentTop="true"
         android:layout_margin="50dp"
         android:padding="5dp"
-        android:text="0"
         android:textAlignment="textEnd"
-        android:textSize="36sp" />
+        android:textIsSelectable="false"
+        android:textSize="28sp"/>
 
     <com.standalone.cashbook.layouts.KeyboardCustom
+        android:id="@+id/kb"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"/>
 
 
 </RelativeLayout>

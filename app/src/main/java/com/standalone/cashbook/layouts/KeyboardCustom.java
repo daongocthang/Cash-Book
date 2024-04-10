@@ -6,6 +6,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.ExtractedTextRequest;
 import android.view.inputmethod.InputConnection;
 import android.widget.LinearLayout;
 
@@ -16,21 +17,29 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import com.standalone.cashbook.R;
 
 public class KeyboardCustom extends LinearLayout implements View.OnClickListener {
-    AppCompatButton bt00, bt0, bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9;
+    AppCompatButton bt00, bt0, bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, btComma;
     AppCompatImageButton btBackspace, btPlus, btSubtract, btEqualOrAccept;
+    boolean calculating = false;
     SparseArray<String> keyValues = new SparseArray<>();
     InputConnection inputConnection;
 
     public KeyboardCustom(Context context) {
-        super(context, null, 0);
+        super(context);
+        init(context);
     }
 
     public KeyboardCustom(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs, 0);
+        super(context, attrs);
+        init(context);
     }
 
     public KeyboardCustom(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context);
+    }
+
+    public KeyboardCustom(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
     }
 
@@ -52,6 +61,7 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
         bt7 = findViewById(R.id.bt_7);
         bt8 = findViewById(R.id.bt_8);
         bt9 = findViewById(R.id.bt_9);
+        btComma = findViewById(R.id.bt_comma);
         btBackspace = findViewById(R.id.bt_backspace);
         btPlus = findViewById(R.id.bt_plus);
         btSubtract = findViewById(R.id.bt_subtract);
@@ -68,6 +78,7 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
         bt7.setOnClickListener(this);
         bt8.setOnClickListener(this);
         bt9.setOnClickListener(this);
+        btComma.setOnClickListener(this);
         btBackspace.setOnClickListener(this);
         btPlus.setOnClickListener(this);
         btSubtract.setOnClickListener(this);
@@ -84,22 +95,34 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
         keyValues.put(R.id.bt_8, "8");
         keyValues.put(R.id.bt_9, "9");
         keyValues.put(R.id.bt_00, "00");
+        keyValues.put(R.id.bt_comma, ",");
     }
 
     @Override
     public void onClick(View view) {
         if (inputConnection == null) return;
+
+
+        String op = "+";
         switch (view.getId()) {
             case R.id.bt_backspace:
                 inputConnection.deleteSurroundingText(1, 0);
                 break;
-            case R.id.bt_plus:
             case R.id.bt_subtract:
-                toggleTypeButton(true);
+                op = "-";
+            case R.id.bt_plus:
+                calculating = true;
+                btEqualOrAccept.setImageResource(R.drawable.ic_equal);
+                inputConnection.commitText(op, 1);
                 break;
             case R.id.bt_equal_or_accept:
-                CharSequence selectedText = inputConnection.getSelectedText(0);
-                Log.i("CONSOLE", selectedText.toString());
+                if (calculating) {
+                    CharSequence extractedText = inputConnection.getExtractedText(new ExtractedTextRequest(), 0).text;
+                    calculate(extractedText.toString());
+                    btEqualOrAccept.setImageResource(R.drawable.ic_accept);
+                } else {
+                    //TODO: commit
+                }
                 break;
             default:
                 inputConnection.commitText(keyValues.get(view.getId()), 1);
@@ -107,7 +130,9 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
 
     }
 
-    private void toggleTypeButton(boolean calculating) {
-        btEqualOrAccept.setImageResource(calculating ? R.drawable.ic_equal : R.drawable.ic_accept);
+    private void calculate(String str) {
+        String[] separated = str.split("[+]");
+        Log.i("CONSOLE", separated[0].toString());
     }
+
 }
