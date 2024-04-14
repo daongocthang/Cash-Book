@@ -2,7 +2,6 @@ package com.standalone.cashbook.layouts;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +15,13 @@ import androidx.appcompat.widget.AppCompatImageButton;
 
 import com.standalone.cashbook.R;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 public class KeyboardCustom extends LinearLayout implements View.OnClickListener {
-    AppCompatButton bt00, bt0, bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, btComma;
-    AppCompatImageButton btBackspace, btPlus, btSubtract, btEqualOrAccept;
-    boolean calculating = false;
+    AppCompatButton bt00, bt0, bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, btC;
+    AppCompatImageButton btBackspace, btApply;
     SparseArray<String> keyValues = new SparseArray<>();
     InputConnection inputConnection;
 
@@ -61,11 +63,9 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
         bt7 = findViewById(R.id.bt_7);
         bt8 = findViewById(R.id.bt_8);
         bt9 = findViewById(R.id.bt_9);
-        btComma = findViewById(R.id.bt_comma);
+        btC = findViewById(R.id.bt_clear);
         btBackspace = findViewById(R.id.bt_backspace);
-        btPlus = findViewById(R.id.bt_plus);
-        btSubtract = findViewById(R.id.bt_subtract);
-        btEqualOrAccept = findViewById(R.id.bt_equal_or_accept);
+        btApply = findViewById(R.id.bt_apply);
 
         bt00.setOnClickListener(this);
         bt0.setOnClickListener(this);
@@ -78,11 +78,9 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
         bt7.setOnClickListener(this);
         bt8.setOnClickListener(this);
         bt9.setOnClickListener(this);
-        btComma.setOnClickListener(this);
+        btC.setOnClickListener(this);
         btBackspace.setOnClickListener(this);
-        btPlus.setOnClickListener(this);
-        btSubtract.setOnClickListener(this);
-        btEqualOrAccept.setOnClickListener(this);
+        btApply.setOnClickListener(this);
 
         keyValues.put(R.id.bt_0, "0");
         keyValues.put(R.id.bt_1, "1");
@@ -95,7 +93,7 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
         keyValues.put(R.id.bt_8, "8");
         keyValues.put(R.id.bt_9, "9");
         keyValues.put(R.id.bt_00, "00");
-        keyValues.put(R.id.bt_comma, ",");
+
     }
 
     @Override
@@ -103,36 +101,47 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
         if (inputConnection == null) return;
 
 
-        String op = "+";
         switch (view.getId()) {
             case R.id.bt_backspace:
                 inputConnection.deleteSurroundingText(1, 0);
+                formatDecimal();
                 break;
-            case R.id.bt_subtract:
-                op = "-";
-            case R.id.bt_plus:
-                calculating = true;
-                btEqualOrAccept.setImageResource(R.drawable.ic_equal);
-                inputConnection.commitText(op, 1);
+            case R.id.bt_clear:
+                inputConnection.deleteSurroundingText(getText().length(), 0);
                 break;
-            case R.id.bt_equal_or_accept:
-                if (calculating) {
-                    CharSequence extractedText = inputConnection.getExtractedText(new ExtractedTextRequest(), 0).text;
-                    calculate(extractedText.toString());
-                    btEqualOrAccept.setImageResource(R.drawable.ic_accept);
-                } else {
-                    //TODO: commit
-                }
+            case R.id.bt_apply:
+                //TODO: commit
                 break;
             default:
-                inputConnection.commitText(keyValues.get(view.getId()), 1);
+                inputConnection.commitText(keyValues.get(view.getId()), 0);
+                formatDecimal();
         }
 
     }
 
-    private void calculate(String str) {
-        String[] separated = str.split("[+]");
-        Log.i("CONSOLE", separated[0].toString());
+
+    public String getText() {
+        CharSequence extracted = inputConnection.getExtractedText(new ExtractedTextRequest(), 0).text;
+        return extracted.toString();
+    }
+
+    private void formatDecimal() {
+        String original = getText();
+
+        if (original.length() < 4) return;
+
+        if (original.contains(",")) {
+            original = original.replace(",", "");
+        }
+
+        long longVal = Long.parseLong(original);
+
+        DecimalFormat fmt = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+        fmt.applyLocalizedPattern("#,###");
+
+
+        inputConnection.deleteSurroundingText(getText().length(), 0);
+        inputConnection.commitText(fmt.format(longVal), 0);
     }
 
 }

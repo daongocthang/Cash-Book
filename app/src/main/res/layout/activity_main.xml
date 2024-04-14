@@ -4,23 +4,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+
     <EditText
         android:id="@+id/edt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_margin="50dp"
+        android:importantForAccessibility="no"
         android:padding="5dp"
         android:textAlignment="textEnd"
-        android:textIsSelectable="false"
-        android:textSize="28sp"/>
+        android:textSize="28sp" />
 
     <com.standalone.cashbook.layouts.KeyboardCustom
         android:id="@+id/kb"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical" />
 
 
 </RelativeLayout>
