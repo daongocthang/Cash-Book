@@ -15,7 +15,7 @@ import androidx.core.app.NotificationManagerCompat;
 import java.util.Random;
 
 @SuppressLint("MissingPermission")
-public class NotifyMe {
+public class NotificationUtil {
     private final static long[] VibrationPattern = new long[]{100, 1000, 200, 340};
 
     public static void post(Context context, String channelId, int icon, String title, String content, PendingIntent pendingIntent) {

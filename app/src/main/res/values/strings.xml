@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Sổ thu chi</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="liabilities">Nợ phải trả</string>
+    <string name="account_balance">Số dư TK</string>
+    <string name="zero">0</string>
+    <string name="title">Tiêu đề</string>
+    <string name="amount">Số tiền</string>
+    <string name="save">Lưu lại</string>
 </resources>

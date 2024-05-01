@@ -16,7 +16,7 @@ import java.util.List;
  * Requirement:
  * <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
  **/
-public class StorageUtils {
+public class StorageUtil {
     private static String TAG = "EXTERNAL_STORAGE";
     public static File getDefaultStorage(Context context) {
         String appName = getApplicationName(context);

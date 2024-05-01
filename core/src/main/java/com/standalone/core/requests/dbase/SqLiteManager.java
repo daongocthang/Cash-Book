@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 
-import com.standalone.core.utils.StorageUtils;
+import com.standalone.core.utils.StorageUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,10 +68,10 @@ public class SqLiteManager {
 
     private static File getExtStorage(Context context) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            return StorageUtils.getRemovableStorage(context);
+            return StorageUtil.getRemovableStorage(context);
         }
 
-        return StorageUtils.getDefaultStorage(context);
+        return StorageUtil.getDefaultStorage(context);
     }
 
     private static void transfer(Context context, File src, File dst) throws IOException {

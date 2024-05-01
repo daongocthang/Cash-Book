@@ -2,30 +2,28 @@ package com.standalone.cashbook.controllers;
 
 import android.content.Context;
 
-import com.standalone.cashbook.models.Ledger;
+import com.standalone.cashbook.models.PayableModel;
 import com.standalone.core.requests.dbase.SqLiteBase;
 
-public class LedgerController extends SqLiteBase<Ledger> {
+public class SqliteHelper extends SqLiteBase<PayableModel> {
 
-
-    public LedgerController(Context context) {
-        super(context, "tbl_ledger");
+    public SqliteHelper(Context context) {
+        super(context, "tbl_expenses");
     }
 
-
     @Override
-    public void insert(Ledger ledger) {
+    public void insert(PayableModel model) {
         try {
-            getDatabase().insert(getTableName(), null, parseContentValues(ledger));
+            getDatabase().insert(getTableName(), null, parseContentValues(model));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void update(Ledger ledger) {
+    public void update(PayableModel model) {
         try {
-            getDatabase().update(getTableName(), parseContentValues(ledger), "id=?", new String[]{String.valueOf(ledger.getId())});
+            getDatabase().update(getTableName(), parseContentValues(model), "id=?", new String[]{String.valueOf(model.getId())});
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }

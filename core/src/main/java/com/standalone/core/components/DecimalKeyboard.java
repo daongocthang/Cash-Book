@@ -1,4 +1,4 @@
-package com.standalone.cashbook.layouts;
+package com.standalone.core.components;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -13,34 +13,48 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
 
-import com.standalone.cashbook.R;
+import com.standalone.core.R;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class KeyboardCustom extends LinearLayout implements View.OnClickListener {
+/*
+    // Usage:
+    EditText edt = findViewById(R.id.edt);
+    DecimalKeyboard kb = findViewById(R.id.kb);
+
+    edt.setShowSoftInputOnFocus(false);
+    edt.setRawInputType(InputType.TYPE_CLASS_TEXT);
+
+    InputConnection ic = edt.onCreateInputConnection(new EditorInfo());
+    kb.setInputConnection(ic);
+*/
+
+public class DecimalKeyboard extends LinearLayout implements View.OnClickListener {
     AppCompatButton bt00, bt0, bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, btC;
     AppCompatImageButton btBackspace, btApply;
     SparseArray<String> keyValues = new SparseArray<>();
     InputConnection inputConnection;
 
-    public KeyboardCustom(Context context) {
+    OnActionDoneListener listener;
+
+    public DecimalKeyboard(Context context) {
         super(context);
         init(context);
     }
 
-    public KeyboardCustom(Context context, @Nullable AttributeSet attrs) {
+    public DecimalKeyboard(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public KeyboardCustom(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public DecimalKeyboard(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
 
-    public KeyboardCustom(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public DecimalKeyboard(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
     }
@@ -50,7 +64,7 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
     }
 
     private void init(Context ctx) {
-        LayoutInflater.from(ctx).inflate(R.layout.keyboard_custom, this, true);
+        LayoutInflater.from(ctx).inflate(R.layout.decimal_keyboard, this, true);
 
         bt00 = findViewById(R.id.bt_00);
         bt0 = findViewById(R.id.bt_0);
@@ -100,21 +114,18 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
     public void onClick(View view) {
         if (inputConnection == null) return;
 
-
-        switch (view.getId()) {
-            case R.id.bt_backspace:
-                inputConnection.deleteSurroundingText(1, 0);
-                formatDecimal();
-                break;
-            case R.id.bt_clear:
-                inputConnection.deleteSurroundingText(getText().length(), 0);
-                break;
-            case R.id.bt_apply:
-                //TODO: commit
-                break;
-            default:
-                inputConnection.commitText(keyValues.get(view.getId()), 0);
-                formatDecimal();
+        int id = view.getId();
+        if (id == R.id.bt_backspace) {
+            inputConnection.deleteSurroundingText(1, 0);
+            formatDecimal();
+        } else if (id == R.id.bt_clear) {
+            inputConnection.deleteSurroundingText(getText().length(), 0);
+        } else if (id == R.id.bt_apply) {
+            if (listener != null)
+                listener.onActionDone(inputConnection);
+        } else {
+            inputConnection.commitText(keyValues.get(view.getId()), 0);
+            formatDecimal();
         }
 
     }
@@ -123,6 +134,10 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
     public String getText() {
         CharSequence extracted = inputConnection.getExtractedText(new ExtractedTextRequest(), 0).text;
         return extracted.toString();
+    }
+
+    public void setOnAcceptListener(OnActionDoneListener listener) {
+        this.listener = listener;
     }
 
     private void formatDecimal() {
@@ -144,4 +159,7 @@ public class KeyboardCustom extends LinearLayout implements View.OnClickListener
         inputConnection.commitText(fmt.format(longVal), 0);
     }
 
+    public interface OnActionDoneListener {
+        void onActionDone(InputConnection inputConnection);
+    }
 }

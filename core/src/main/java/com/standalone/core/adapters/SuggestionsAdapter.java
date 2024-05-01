@@ -19,7 +19,7 @@ public class SuggestionsAdapter extends BaseAdapter<String, SuggestionsAdapter.V
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(instantiateItemView(R.layout.simple_item_line, parent));
+        return new ViewHolder(instantiateItemView(R.layout.simple_list_item, parent));
     }
 
     @Override

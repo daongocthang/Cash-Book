@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class ListUtils {
+public class ListUtil {
     public static List<?> removeDuplicates(List<?> items) {
         return items.stream().distinct().collect(Collectors.toList());
     }

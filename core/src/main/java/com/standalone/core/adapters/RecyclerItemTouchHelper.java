@@ -87,7 +87,13 @@ public abstract class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCall
         icon.draw(c);
     }
 
+    /**
+     * Delete Action
+     */
     public abstract void onSwipeLeft(int position);
 
+    /**
+     * Edit Action
+     */
     public abstract void onSwipeRight(int position);
 }
