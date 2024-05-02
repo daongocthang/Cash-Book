@@ -11,24 +11,24 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.standalone.cashbook.R;
-import com.standalone.cashbook.activities.AdditionActivity;
+import com.standalone.cashbook.activities.EditorActivity;
 import com.standalone.cashbook.models.PayableModel;
 import com.standalone.core.adapters.BaseAdapter;
 
 import java.util.Locale;
 
-public class PaymentAdapter extends BaseAdapter<PayableModel, PaymentAdapter.ViewHolder> {
+public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.ViewHolder> {
 
     final Context context;
 
-    public PaymentAdapter(Context context) {
+    public PayableAdapter(Context context) {
         this.context = context;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = instantiateItemView(R.layout.list_item_payment, parent);
+        View view = instantiateItemView(R.layout.list_item_payable, parent);
         return new ViewHolder(view);
     }
 
@@ -48,7 +48,7 @@ public class PaymentAdapter extends BaseAdapter<PayableModel, PaymentAdapter.Vie
     }
 
     public void editItem(int position) {
-        Intent intent = new Intent(context, AdditionActivity.class);
+        Intent intent = new Intent(context, EditorActivity.class);
         PayableModel model = getItem(position);
         Bundle bundle = new Bundle();
         bundle.putSerializable("payment", model);

@@ -1,5 +1,6 @@
 package com.standalone.cashbook.activities;
 
+import android.app.AlarmManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -10,11 +11,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
-import com.standalone.cashbook.adapters.PaymentAdapter;
+import com.standalone.cashbook.adapters.PayableAdapter;
 import com.standalone.cashbook.controllers.SqliteHelper;
 import com.standalone.cashbook.databinding.ActivityMainBinding;
 import com.standalone.cashbook.models.PayableModel;
+import com.standalone.cashbook.receivers.AlarmInfo;
+import com.standalone.cashbook.receivers.AlarmReceiver;
 import com.standalone.core.adapters.RecyclerItemTouchHelper;
+import com.standalone.core.services.AlarmScheduler;
 import com.standalone.core.tools.SmsReader;
 
 import java.util.Locale;
@@ -30,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
     static final int JOB_ID = 123;
 
     ActivityMainBinding binding;
-    PaymentAdapter adapter;
+    PayableAdapter adapter;
     SmsReader reader;
     Pattern pattern;
     SqliteHelper sqliteHelper;
@@ -46,8 +50,9 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
         pattern = Pattern.compile(SMS_PATTERN);
 
         invokeSmsReader();
+        scheduleAlarm();
 
-        adapter = new PaymentAdapter(this);
+        adapter = new PayableAdapter(this);
         adapter.setItemList(sqliteHelper.fetchAll());
         binding.recycler.setAdapter(adapter);
 
@@ -71,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, AdditionActivity.class));
+                startActivity(new Intent(MainActivity.this, EditorActivity.class));
             }
         });
     }
@@ -83,6 +88,16 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
             reader.requestReadSmsPermission(this);
         }
     }
+
+    private void scheduleAlarm() {
+        AlarmScheduler scheduler = AlarmScheduler.from(this);
+        scheduler.setAlarm(AlarmInfo.REQUEST_CODE_RECEIVER,
+                AlarmInfo.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY,
+                AlarmReceiver.class
+        );
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -92,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
             }
         }
     }
+
     @Override
     public boolean onDataChange(Map<String, String> sms) {
         String body = sms.get("body");

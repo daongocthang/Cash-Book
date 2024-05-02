@@ -8,28 +8,21 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
-
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.standalone.cashbook.controllers.SqliteHelper;
-import com.standalone.cashbook.databinding.ActivityAdditionBinding;
+import com.standalone.cashbook.databinding.ActivityEditorBinding;
 import com.standalone.cashbook.models.PayableModel;
 import com.standalone.core.components.DecimalKeyboard;
 import com.standalone.core.utils.CalendarUtil;
 import com.standalone.core.utils.PickerUtil;
 import com.standalone.core.utils.ValidationManager;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
-public class AdditionActivity extends AppCompatActivity {
+public class EditorActivity extends AppCompatActivity {
 
-    ActivityAdditionBinding binding;
+    ActivityEditorBinding binding;
     ValidationManager manager;
     SqliteHelper helper;
 
@@ -38,7 +31,7 @@ public class AdditionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityAdditionBinding.inflate(getLayoutInflater());
+        binding = ActivityEditorBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         manager = ValidationManager.getInstance();
@@ -91,7 +84,7 @@ public class AdditionActivity extends AppCompatActivity {
         binding.calendarIB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PickerUtil.from(AdditionActivity.this)
+                PickerUtil.from(EditorActivity.this)
                         .setPatternDate("yyyy-MM-dd")
                         .showDatePicker("Select date of payment", binding.calendarTV);
             }
