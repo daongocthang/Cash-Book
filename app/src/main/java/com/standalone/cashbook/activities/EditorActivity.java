@@ -1,6 +1,7 @@
 package com.standalone.cashbook.activities;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -8,10 +9,15 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.standalone.cashbook.R;
 import com.standalone.cashbook.controllers.SqliteHelper;
 import com.standalone.cashbook.databinding.ActivityEditorBinding;
 import com.standalone.cashbook.models.PayableModel;
+import com.standalone.cashbook.receivers.AlarmInfo;
 import com.standalone.core.components.DecimalKeyboard;
 import com.standalone.core.utils.CalendarUtil;
 import com.standalone.core.utils.PickerUtil;
@@ -25,7 +31,7 @@ public class EditorActivity extends AppCompatActivity {
     ActivityEditorBinding binding;
     ValidationManager manager;
     SqliteHelper helper;
-
+    PayableModel model;
     int position = -1;
 
     @Override
@@ -40,7 +46,7 @@ public class EditorActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle bundle = intent.getBundleExtra("bundle");
         if (bundle != null) {
-            PayableModel model = (PayableModel) bundle.getSerializable("payment");
+            model = (PayableModel) bundle.getSerializable("payment");
             if (model != null) {
                 position = model.getId();
                 binding.titleET.setText(model.getTitle());
@@ -50,8 +56,31 @@ public class EditorActivity extends AppCompatActivity {
         }
 
         if (position < 0) {
-            String dateStr = CalendarUtil.toString("yyyy-MM-dd", CalendarUtil.now());
+            String dateStr = CalendarUtil.toString(AlarmInfo.DATE_PATTERN, CalendarUtil.now());
             binding.calendarTV.setText(dateStr);
+        } else {
+            binding.btPay.setVisibility(View.VISIBLE);
+            binding.btPay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    new MaterialAlertDialogBuilder(EditorActivity.this)
+                            .setMessage(getString(R.string.alert_msg_payment))
+                            .setPositiveButton(getString(R.string.accept), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    model.setPaid(1);
+                                    helper.update(model);
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            }).show();
+                }
+            });
         }
 
         binding.amountET.setShowSoftInputOnFocus(false);
@@ -85,7 +114,7 @@ public class EditorActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 PickerUtil.from(EditorActivity.this)
-                        .setPatternDate("yyyy-MM-dd")
+                        .setPatternDate(AlarmInfo.DATE_PATTERN)
                         .showDatePicker("Select date of payment", binding.calendarTV);
             }
         });

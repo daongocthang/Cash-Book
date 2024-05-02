@@ -8,8 +8,8 @@ public class AlarmInfo {
     public static final int REQUEST_CODE_ACTIVITY = 1;
     public static final int ALARM_HOUR = 8;
     public static final int ALARM_MINUTE = 0;
-    public static String DATE_PATTERN = "yyyy-MM-dd";
-    public static String CHANNEL_ID = UUID.fromString("notification_cashbook").toString();
+    public static String DATE_PATTERN = "dd-MM-yyyy";
+    public static String CHANNEL_ID = "notification_cashbook";
 
     public static long getTimeInMillis() {
         Calendar calendar = Calendar.getInstance();

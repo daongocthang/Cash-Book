@@ -1,6 +1,7 @@
 package com.standalone.cashbook.activities;
 
 import android.app.AlarmManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -11,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.standalone.cashbook.R;
 import com.standalone.cashbook.adapters.PayableAdapter;
 import com.standalone.cashbook.controllers.SqliteHelper;
 import com.standalone.cashbook.databinding.ActivityMainBinding;
@@ -21,11 +24,13 @@ import com.standalone.core.adapters.RecyclerItemTouchHelper;
 import com.standalone.core.services.AlarmScheduler;
 import com.standalone.core.tools.SmsReader;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity implements SmsReader.ValueEventListener {
     static final String TAG = MainActivity.class.getSimpleName();
@@ -53,7 +58,10 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
         scheduleAlarm();
 
         adapter = new PayableAdapter(this);
-        adapter.setItemList(sqliteHelper.fetchAll());
+        List<PayableModel> pendingItemList = sqliteHelper.fetchAll()
+                .stream()
+                .filter(m -> m.getPaid() == 0).collect(Collectors.toList());
+        adapter.setItemList(pendingItemList);
         binding.recycler.setAdapter(adapter);
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new RecyclerItemTouchHelper(this) {
@@ -64,10 +72,22 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
 
             @Override
             public void onSwipeRight(int position) {
-                PayableModel model = adapter.removeItem(position);
-                sqliteHelper.remove(model.getId());
-
-                binding.liabilitiesTV.setText(String.format(Locale.US, "%,d", adapter.getTotalAmount()));
+                new MaterialAlertDialogBuilder(MainActivity.this)
+                        .setMessage(getString(R.string.alert_msg_delete))
+                        .setPositiveButton(getString(R.string.accept), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                PayableModel model = adapter.removeItem(position);
+                                sqliteHelper.remove(model.getId());
+                                binding.liabilitiesTV.setText(String.format(Locale.US, "%,d", adapter.getTotalAmount()));
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        }).show();
             }
         });
         itemTouchHelper.attachToRecyclerView(binding.recycler);
