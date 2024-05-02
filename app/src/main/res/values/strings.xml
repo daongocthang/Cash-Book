@@ -10,6 +10,7 @@
     <string name="accept">Chấp nhận</string>
     <string name="cancel">Hủy bỏ</string>
     <string name="alert_msg_delete">Bạn có muốn xóa này không?</string>
-    <string name="alert_msg_payment">Bạn có muốn thanh toán không?</string>
-    <string name="pay">Thanh toán</string>
+    <string name="notification_title">Thông báo</string>
+    <string name="notification_msg">Tổng số tiền cần phải thanh toán là </string>
+    <string name="paid">Đã thanh toán</string>
 </resources>

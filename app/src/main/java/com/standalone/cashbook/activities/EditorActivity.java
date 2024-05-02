@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckedTextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -27,7 +28,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class EditorActivity extends AppCompatActivity {
-
     ActivityEditorBinding binding;
     ValidationManager manager;
     SqliteHelper helper;
@@ -52,35 +52,13 @@ public class EditorActivity extends AppCompatActivity {
                 binding.titleET.setText(model.getTitle());
                 binding.amountET.setText(String.format(Locale.US, "%,d", model.getAmount()));
                 binding.calendarTV.setText(model.getDate());
+                binding.chkPaid.setChecked(model.getPaid() > 0);
             }
         }
 
         if (position < 0) {
             String dateStr = CalendarUtil.toString(AlarmInfo.DATE_PATTERN, CalendarUtil.now());
             binding.calendarTV.setText(dateStr);
-        } else {
-            binding.btPay.setVisibility(View.VISIBLE);
-            binding.btPay.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    new MaterialAlertDialogBuilder(EditorActivity.this)
-                            .setMessage(getString(R.string.alert_msg_payment))
-                            .setPositiveButton(getString(R.string.accept), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    model.setPaid(1);
-                                    helper.update(model);
-                                }
-                            })
-                            .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                }
-                            }).show();
-                }
-            });
         }
 
         binding.amountET.setShowSoftInputOnFocus(false);
@@ -119,6 +97,14 @@ public class EditorActivity extends AppCompatActivity {
             }
         });
 
+        binding.chkPaid.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean isChecked = binding.chkPaid.isChecked();
+                binding.chkPaid.setChecked(!isChecked);
+            }
+        });
+
         binding.submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -140,6 +126,7 @@ public class EditorActivity extends AppCompatActivity {
         model.setTitle(title);
         model.setAmount(amountInt);
         model.setDate(dateStr);
+        model.setPaid(binding.chkPaid.isChecked() ? 1 : 0);
 
         if (position < 0) {
             helper.insert(model);

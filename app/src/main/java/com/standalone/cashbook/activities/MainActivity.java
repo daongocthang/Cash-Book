@@ -1,11 +1,13 @@
 package com.standalone.cashbook.activities;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -58,10 +60,12 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
         scheduleAlarm();
 
         adapter = new PayableAdapter(this);
+        /*
         List<PayableModel> pendingItemList = sqliteHelper.fetchAll()
                 .stream()
                 .filter(m -> m.getPaid() == 0).collect(Collectors.toList());
-        adapter.setItemList(pendingItemList);
+                */
+        adapter.setItemList(sqliteHelper.fetchAll());
         binding.recycler.setAdapter(adapter);
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new RecyclerItemTouchHelper(this) {
@@ -83,8 +87,10 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
                             }
                         })
                         .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                            @SuppressLint("NotifyDataSetChanged")
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
+                                adapter.notifyDataSetChanged();
                                 dialogInterface.dismiss();
                             }
                         }).show();

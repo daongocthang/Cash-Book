@@ -2,6 +2,8 @@ package com.standalone.cashbook.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,9 +37,11 @@ public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.Vie
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         PayableModel model = getItem(position);
-        holder.titleTV.setText(model.getTitle());
-        holder.amountTV.setText(String.format(Locale.US, "%,d", model.getAmount()));
-        holder.dateTV.setText(model.getDate());
+        holder.textviewTitle.setText(model.getTitle());
+        holder.textViewAmount.setText(String.format(Locale.US, "%,d", model.getAmount()));
+        holder.textViewDate.setText(model.getDate());
+        if (model.getPaid() > 0)
+            holder.viewIndicator.setBackgroundResource(com.standalone.core.R.color.success_dark);
     }
 
     public PayableModel removeItem(int position) {
@@ -67,15 +71,17 @@ public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.Vie
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTV;
-        TextView amountTV;
-        TextView dateTV;
+        TextView textviewTitle;
+        TextView textViewAmount;
+        TextView textViewDate;
+        View viewIndicator;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            titleTV = itemView.findViewById(R.id.tittleTV);
-            amountTV = itemView.findViewById(R.id.amountTV);
-            dateTV = itemView.findViewById(R.id.dateTV);
+            textviewTitle = itemView.findViewById(R.id.tittleTV);
+            textViewAmount = itemView.findViewById(R.id.amountTV);
+            textViewDate = itemView.findViewById(R.id.dateTV);
+            viewIndicator = itemView.findViewById(R.id.indicator);
         }
     }
 }
