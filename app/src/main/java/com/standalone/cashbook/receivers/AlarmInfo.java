@@ -11,6 +11,8 @@ public class AlarmInfo {
     public static String DATE_PATTERN = "dd-MM-yyyy";
     public static String CHANNEL_ID = "notification_cashbook";
 
+    public static String COLLECTION_ID = "liabilities";
+
     public static long getTimeInMillis() {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, ALARM_HOUR);

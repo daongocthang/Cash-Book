@@ -22,11 +22,9 @@ import java.util.Locale;
 public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.ViewHolder> {
 
     final Context context;
-
     public PayableAdapter(Context context) {
         this.context = context;
     }
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -40,17 +38,15 @@ public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.Vie
         holder.textviewTitle.setText(model.getTitle());
         holder.textViewAmount.setText(String.format(Locale.US, "%,d", model.getAmount()));
         holder.textViewDate.setText(model.getDate());
-        if (model.getPaid() > 0)
+        if (model.isPaid())
             holder.viewIndicator.setBackgroundResource(com.standalone.core.R.color.success_dark);
     }
-
     public PayableModel removeItem(int position) {
         PayableModel model = itemList.get(position);
         itemList.remove(position);
         notifyItemRemoved(position);
         return model;
     }
-
     public void editItem(int position) {
         Intent intent = new Intent(context, EditorActivity.class);
         PayableModel model = getItem(position);
@@ -59,17 +55,15 @@ public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.Vie
         intent.putExtra("bundle", bundle);
         context.startActivity(intent);
     }
-
     public int getTotalAmount() {
         int total = 0;
         for (PayableModel item : itemList) {
-            if (item.getPaid() > 0) continue;
-            ;
+            if (item.isPaid()) continue;
+
             total += item.getAmount();
         }
         return total;
     }
-
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textviewTitle;
         TextView textViewAmount;

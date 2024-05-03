@@ -33,7 +33,7 @@ public class PickerUtil {
 
     public void showDatePicker(String title, TextView textView) {
         Calendar calCurrent = Calendar.getInstance();
-        calCurrent.setTime(CalendarUtil.parseTime(pattern, textView.getText().toString()));
+        calCurrent.setTime(DateTimeUtil.parseTime(pattern, textView.getText().toString()));
         calCurrent.add(Calendar.DAY_OF_YEAR, 1);
 
         MaterialDatePicker<Long> picker = MaterialDatePicker.Builder.datePicker()

@@ -7,26 +7,32 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.auth.FirebaseAuth;
 import com.standalone.cashbook.R;
 import com.standalone.cashbook.adapters.PayableAdapter;
-import com.standalone.cashbook.controllers.SqliteHelper;
+import com.standalone.cashbook.controllers.FireStoreHelper;
 import com.standalone.cashbook.databinding.ActivityMainBinding;
 import com.standalone.cashbook.models.PayableModel;
 import com.standalone.cashbook.receivers.AlarmInfo;
 import com.standalone.cashbook.receivers.AlarmReceiver;
 import com.standalone.core.adapters.RecyclerItemTouchHelper;
+import com.standalone.core.dialogs.ProgressDialog;
 import com.standalone.core.services.AlarmScheduler;
 import com.standalone.core.tools.SmsReader;
+import com.standalone.core.utils.DialogUtil;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -44,7 +50,9 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
     PayableAdapter adapter;
     SmsReader reader;
     Pattern pattern;
-    SqliteHelper sqliteHelper;
+    FirebaseAuth auth;
+    FireStoreHelper<PayableModel> helper;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +60,13 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        sqliteHelper = new SqliteHelper(this);
+        auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) {
+            startActivity(new Intent(this, SignInActivity.class));
+            finish();
+            return;
+        }
+
         reader = new SmsReader(this);
         pattern = Pattern.compile(SMS_PATTERN);
 
@@ -60,13 +74,19 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
         scheduleAlarm();
 
         adapter = new PayableAdapter(this);
-        /*
-        List<PayableModel> pendingItemList = sqliteHelper.fetchAll()
-                .stream()
-                .filter(m -> m.getPaid() == 0).collect(Collectors.toList());
-                */
-        adapter.setItemList(sqliteHelper.fetchAll());
         binding.recycler.setAdapter(adapter);
+
+        helper = new FireStoreHelper<>(AlarmInfo.COLLECTION_ID);
+
+        progressDialog = DialogUtil.showProgressDialog(this);
+        helper.fetch(PayableModel.class, new FireStoreHelper.OnFetchCompleteListener<PayableModel>() {
+            @Override
+            public void onFetchComplete(ArrayList<PayableModel> data) {
+                adapter.setItemList(data);
+                binding.liabilitiesTV.setText(String.format(Locale.US,"%,d", adapter.getTotalAmount()));
+                progressDialog.dismiss();
+            }
+        });
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new RecyclerItemTouchHelper(this) {
             @Override
@@ -76,14 +96,21 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
 
             @Override
             public void onSwipeRight(int position) {
+                progressDialog = DialogUtil.showProgressDialog(MainActivity.this);
                 new MaterialAlertDialogBuilder(MainActivity.this)
                         .setMessage(getString(R.string.alert_msg_delete))
                         .setPositiveButton(getString(R.string.accept), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 PayableModel model = adapter.removeItem(position);
-                                sqliteHelper.remove(model.getId());
-                                binding.liabilitiesTV.setText(String.format(Locale.US, "%,d", adapter.getTotalAmount()));
+                                helper.remove(model.getKey()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        binding.liabilitiesTV.setText(String.format(Locale.US, "%,d", adapter.getTotalAmount()));
+                                        progressDialog.dismiss();
+                                    }
+                                });
+                                dialogInterface.dismiss();
                             }
                         })
                         .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -91,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 adapter.notifyDataSetChanged();
+                                progressDialog.dismiss();
                                 dialogInterface.dismiss();
                             }
                         }).show();
@@ -105,6 +133,21 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
                 startActivity(new Intent(MainActivity.this, EditorActivity.class));
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.sm_logout) {
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(this, SignInActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void invokeSmsReader() {

@@ -3,26 +3,16 @@ package com.standalone.cashbook.models;
 import com.standalone.core.requests.dbase.Column;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-public class PayableModel implements Serializable {
-    @Column(primary = true)
-    int id;
-    @Column
+public class PayableModel extends BaseModel {
+
     String title;
-    @Column
-    int amount;
-    @Column
+    long amount;
     String date;
-    @Column
-    int paid;
+    boolean paid;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getTitle() {
         return title;
@@ -32,11 +22,11 @@ public class PayableModel implements Serializable {
         this.title = title;
     }
 
-    public int getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 
@@ -48,11 +38,21 @@ public class PayableModel implements Serializable {
         this.date = date;
     }
 
-    public int getPaid() {
+    public boolean isPaid() {
         return paid;
     }
 
-    public void setPaid(int paid) {
+    public void setPaid(boolean paid) {
         this.paid = paid;
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("title", title);
+        map.put("amount", amount);
+        map.put("date", date);
+        map.put("paid", paid);
+        return map;
     }
 }

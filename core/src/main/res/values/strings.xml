@@ -1,3 +1,4 @@
 <resources>
-
+    <string name="accept">Chấp nhận</string>
+    <string name="cancel">Hủy bỏ</string>
 </resources>

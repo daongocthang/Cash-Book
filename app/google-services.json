@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "155546397512",
+    "project_id": "cashbook-88589",
+    "storage_bucket": "cashbook-88589.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:155546397512:android:ec577ee80c438b8304617d",
+        "android_client_info": {
+          "package_name": "com.standalone.cashbook"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaGpKgctjhEmpTiD9zbSXH2508M0n7z6w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

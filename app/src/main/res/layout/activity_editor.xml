@@ -1,102 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp"
     tools:context=".activities.EditorActivity">
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilTitle"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:hint="@string/title"
+        app:endIconMode="clear_text">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtTitle"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:imeOptions="actionNext"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilAmount"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:hint="@string/amount"
+        app:endIconMode="clear_text">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtAmount"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:inputType="numberDecimal" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:layout_marginBottom="10dp">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/titleTIL"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:hint="@string/title"
-            app:endIconMode="clear_text">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/titleET"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:imeOptions="actionNext"
-                android:inputType="text" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/amountTIL"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:hint="@string/amount"
-            app:endIconMode="clear_text">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/amountET"
-                android:layout_width="match_parent"
-                android:layout_height="60dp" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp">
-
-            <TextView
-                android:id="@+id/calendarTV"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:paddingStart="18dp"
-                android:text="DD-MM-YYYY"
-                android:textColor="@color/colorAccent"
-                android:textSize="16sp" />
-
-            <ImageButton
-                android:id="@+id/calendarIB"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:background="@drawable/ui_ripple"
-                android:contentDescription="TODO"
-                android:padding="10dp"
-                android:src="@drawable/ic_calendar" />
-        </LinearLayout>
-
-        <CheckedTextView
-            android:id="@+id/chkPaid"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvDateOfPayment"
+            android:layout_width="0dp"
             android:layout_height="60dp"
-            android:layout_marginBottom="10dp"
-            android:checkMark="@drawable/ui_checkbox"
-            android:checked="false"
-            android:gravity="center"
-            android:minHeight="48dp"
-            android:padding="18dp"
-            android:text="@string/paid"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingStart="18dp"
+            android:text="DD-MM-YYYY"
             android:textColor="@color/colorAccent"
             android:textSize="16sp" />
 
-        <Button
-            android:id="@+id/submit"
-            android:layout_width="match_parent"
+        <ImageButton
+            android:id="@+id/btnCalendar"
+            android:layout_width="60dp"
             android:layout_height="60dp"
-            android:text="@string/save" />
+            android:background="@drawable/ui_ripple"
+            android:contentDescription="TODO"
+            android:padding="10dp"
+            android:src="@drawable/ic_calendar" />
     </LinearLayout>
 
-    <com.standalone.core.components.DecimalKeyboard
-        android:id="@+id/keyboard"
+    <CheckedTextView
+        android:id="@+id/chkPaid"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:visibility="invisible" />
-</RelativeLayout>
+        android:layout_height="60dp"
+        android:layout_marginBottom="10dp"
+        android:checkMark="@drawable/ui_checkbox"
+        android:checked="false"
+        android:gravity="center"
+        android:minHeight="48dp"
+        android:padding="18dp"
+        android:text="@string/paid"
+        android:textColor="@color/colorAccent"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/submit"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/save" />
+</LinearLayout>

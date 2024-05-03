@@ -1,38 +1,37 @@
 package com.standalone.cashbook.activities;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputConnection;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckedTextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.standalone.cashbook.R;
-import com.standalone.cashbook.controllers.SqliteHelper;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.standalone.cashbook.controllers.FireStoreHelper;
 import com.standalone.cashbook.databinding.ActivityEditorBinding;
 import com.standalone.cashbook.models.PayableModel;
 import com.standalone.cashbook.receivers.AlarmInfo;
-import com.standalone.core.components.DecimalKeyboard;
-import com.standalone.core.utils.CalendarUtil;
+import com.standalone.core.dialogs.ProgressDialog;
+import com.standalone.core.utils.DateTimeUtil;
+import com.standalone.core.utils.DialogUtil;
 import com.standalone.core.utils.PickerUtil;
 import com.standalone.core.utils.ValidationManager;
 
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 
 public class EditorActivity extends AppCompatActivity {
     ActivityEditorBinding binding;
     ValidationManager manager;
-    SqliteHelper helper;
+    FireStoreHelper<PayableModel> helper;
     PayableModel model;
-    int position = -1;
+    String keyRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,59 +40,59 @@ public class EditorActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         manager = ValidationManager.getInstance();
-        helper = new SqliteHelper(this);
+        helper = new FireStoreHelper<>(AlarmInfo.COLLECTION_ID);
 
         Intent intent = getIntent();
         Bundle bundle = intent.getBundleExtra("bundle");
         if (bundle != null) {
             model = (PayableModel) bundle.getSerializable("payment");
             if (model != null) {
-                position = model.getId();
-                binding.titleET.setText(model.getTitle());
-                binding.amountET.setText(String.format(Locale.US, "%,d", model.getAmount()));
-                binding.calendarTV.setText(model.getDate());
-                binding.chkPaid.setChecked(model.getPaid() > 0);
+                keyRef = model.getKey();
+                binding.edtTitle.setText(model.getTitle());
+                binding.edtAmount.setText(String.format(Locale.US, "%,d", model.getAmount()));
+                binding.tvDateOfPayment.setText(model.getDate());
+                binding.chkPaid.setChecked(model.isPaid());
             }
         }
-
-        if (position < 0) {
-            String dateStr = CalendarUtil.toString(AlarmInfo.DATE_PATTERN, CalendarUtil.now());
-            binding.calendarTV.setText(dateStr);
+        if (TextUtils.isEmpty(keyRef)) {
+            String dateStr = DateTimeUtil.toString(AlarmInfo.DATE_PATTERN, DateTimeUtil.now());
+            binding.tvDateOfPayment.setText(dateStr);
         }
 
-        binding.amountET.setShowSoftInputOnFocus(false);
-        binding.amountET.setRawInputType(InputType.TYPE_CLASS_TEXT);
-
-        InputConnection ic = binding.amountET.onCreateInputConnection(new EditorInfo());
-        binding.keyboard.setInputConnection(ic);
-
-        binding.keyboard.setOnAcceptListener(new DecimalKeyboard.OnActionDoneListener() {
+        binding.edtAmount.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onActionDone(InputConnection inputConnection) {
-                binding.keyboard.setVisibility(View.INVISIBLE);
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
             }
-        });
 
-        binding.amountET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                    binding.keyboard.setVisibility(View.VISIBLE);
-                } else {
-                    binding.keyboard.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                binding.edtAmount.removeTextChangedListener(this);
+                String textInput = s.toString();
+                if (textInput.contains(",")) {
+                    textInput = textInput.replace(",", "");
                 }
+                long longValue = Long.parseLong(textInput);
+
+                String formattedTextInput = String.format(Locale.US, "%,d", longValue);
+                binding.edtAmount.setText(formattedTextInput);
+                binding.edtAmount.setSelection(formattedTextInput.length());
+
+                binding.edtAmount.addTextChangedListener(this);
             }
         });
 
-        binding.calendarIB.setOnClickListener(new View.OnClickListener() {
+        binding.btnCalendar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 PickerUtil.from(EditorActivity.this)
                         .setPatternDate(AlarmInfo.DATE_PATTERN)
-                        .showDatePicker("Select date of payment", binding.calendarTV);
+                        .showDatePicker("Select date of payment", binding.tvDateOfPayment);
             }
         });
 
@@ -108,33 +107,41 @@ public class EditorActivity extends AppCompatActivity {
         binding.submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                manager.doValidation(binding.titleTIL).checkEmpty();
-                manager.doValidation(binding.amountTIL).checkEmpty();
+                manager.doValidation(binding.tilTitle).checkEmpty();
+                manager.doValidation(binding.tilAmount).checkEmpty();
                 if (manager.isAllValid()) onSubmit();
             }
         });
     }
 
     private void onSubmit() {
-        String title = Objects.requireNonNull(binding.titleET.getText()).toString().trim();
-        String amount = Objects.requireNonNull(binding.amountET.getText()).toString().trim().replace(",", "");
-        String dateStr = binding.calendarTV.getText().toString();
+        String title = Objects.requireNonNull(binding.edtTitle.getText()).toString().trim();
+        String amount = Objects.requireNonNull(binding.edtAmount.getText()).toString().trim().replace(",", "");
+        String dateStr = binding.tvDateOfPayment.getText().toString();
 
-        int amountInt = Integer.parseInt(amount);
+        long longAmount = Long.parseLong(amount);
 
         PayableModel model = new PayableModel();
         model.setTitle(title);
-        model.setAmount(amountInt);
+        model.setAmount(longAmount);
         model.setDate(dateStr);
-        model.setPaid(binding.chkPaid.isChecked() ? 1 : 0);
-
-        if (position < 0) {
-            helper.insert(model);
+        model.setPaid(binding.chkPaid.isChecked());
+        Task<Void> task;
+        if (TextUtils.isEmpty(keyRef)) {
+            model.setKey(UUID.randomUUID().toString());
+            task = helper.create(model);
         } else {
-            model.setId(position);
-            helper.update(model);
+            task = helper.update(keyRef, model);
         }
 
-        startActivity(new Intent(this, MainActivity.class));
+        ProgressDialog progressDialog = DialogUtil.showProgressDialog(this);
+        task.addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                progressDialog.dismiss();
+                startActivity(new Intent(EditorActivity.this, MainActivity.class));
+                finish();
+            }
+        });
     }
 }

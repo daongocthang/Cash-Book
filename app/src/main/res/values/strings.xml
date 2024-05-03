@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Sổ thu chi</string>
+    <string name="app_name">Sổ nợ</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="liabilities">Nợ phải trả</string>
     <string name="account_balance">Số dư TK</string>
@@ -13,4 +13,23 @@
     <string name="notification_title">Thông báo</string>
     <string name="notification_msg">Tổng số tiền cần phải thanh toán là </string>
     <string name="paid">Đã thanh toán</string>
+    <!-- For Auth   -->
+    <string name="password">Mật khẩu</string>
+    <string name="re_password">Nhập lại mật khẩu</string>
+    <string name="login">Đăng nhập</string>
+    <string name="register">Đăng ký</string>
+    <string name="do_not_have_an_account">Bạn chưa có tài khoản?</string>
+    <string name="already_a_member">Bạn đã có tài khoản?</string>
+    <string name="register_here">Đăng ký ngay</string>
+    <string name="login_here">Đăng nhập ngay</string>
+    <string name="register_new_account">Đăng ký thành viên</string>
+    <string name="helper_password">* Mật khẩu chứa ít nhật 6 ký tự</string>
+    <string name="close">Đóng</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="forget_password">Quên mật khẩu?</string>
+    <string name="send_mail">Gửi</string>
+    <string name="reset_password">Khôi phục mật khẩu</string>
+    <string name="helper_forget_password">
+        Vui lòng nhập Email bạn đã dùng để khôi phục mật khẩu.
+    </string>
 </resources>

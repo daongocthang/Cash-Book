@@ -7,22 +7,32 @@ import android.content.Intent;
 
 import com.standalone.cashbook.R;
 import com.standalone.cashbook.activities.MainActivity;
-import com.standalone.cashbook.controllers.SqliteHelper;
+import com.standalone.cashbook.controllers.FireStoreHelper;
 import com.standalone.cashbook.models.PayableModel;
-import com.standalone.core.utils.CalendarUtil;
+import com.standalone.core.utils.DateTimeUtil;
 import com.standalone.core.utils.NotificationUtil;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class AlarmReceiver extends BroadcastReceiver {
+    FireStoreHelper<PayableModel> helper;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        SqliteHelper helper = new SqliteHelper(context);
-        List<PayableModel> payableList = helper.fetchAll();
+        helper = new FireStoreHelper<>(AlarmInfo.COLLECTION_ID);
+        helper.fetch(PayableModel.class, new FireStoreHelper.OnFetchCompleteListener<PayableModel>() {
+            @Override
+            public void onFetchComplete(ArrayList<PayableModel> data) {
+                doWork(context, data);
+            }
+        });
+    }
+
+    private void doWork(Context context, List<PayableModel> payableList) {
         Calendar today = Calendar.getInstance();
         today.set(Calendar.HOUR_OF_DAY, 0);
         today.set(Calendar.MINUTE, 0);
@@ -30,21 +40,20 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         int sum = 0;
         for (PayableModel model : payableList) {
-            Date date = CalendarUtil.parseTime(AlarmInfo.DATE_PATTERN, model.getDate());
+            Date date = DateTimeUtil.parseTime(AlarmInfo.DATE_PATTERN, model.getDate());
             Calendar dateOfPayment = Calendar.getInstance();
             dateOfPayment.setTime(date);
-            if (today.after(dateOfPayment)) {
-                if (model.getPaid() > 0) {
-                    model.setPaid(0);
-                    dateOfPayment.add(Calendar.MONTH, 1);
-                    model.setDate(CalendarUtil.toString(AlarmInfo.DATE_PATTERN, dateOfPayment.getTime()));
-                } else {
-                    sum += model.getAmount();
-                }
+            if (today.get(Calendar.DATE) == 1 && model.isPaid()) {
+                model.setPaid(false);
+                dateOfPayment.add(Calendar.MONTH, 1);
+                model.setDate(DateTimeUtil.toString(AlarmInfo.DATE_PATTERN, dateOfPayment.getTime()));
+                helper.update(model.getKey(), model);
+            }
+
+            if (today.after(dateOfPayment) && !model.isPaid()) {
+                sum += model.getAmount();
             }
         }
-
-
         if (sum > 0) {
             Intent specifiedIntent = new Intent(context, MainActivity.class);
             int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;

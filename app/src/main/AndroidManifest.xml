@@ -32,6 +32,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.SignInActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.RegisterActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.SignInActivity" />
+        <activity
+            android:name=".activities.ResetPasswordActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.SignInActivity" />
+
 
         <receiver
             android:name=".receivers.DeviceBootReceiver"
