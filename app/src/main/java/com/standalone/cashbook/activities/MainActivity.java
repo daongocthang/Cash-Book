@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new RecyclerItemTouchHelper(this) {
             @Override
             public void onSwipeLeft(int position) {
+                adapter.notifyItemChanged(position);
                 adapter.editItem(position);
             }
 
@@ -120,10 +121,9 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
                             }
                         })
                         .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                            @SuppressLint("NotifyDataSetChanged")
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                adapter.notifyDataSetChanged();
+                                adapter.notifyItemChanged(position);
                                 progressDialog.dismiss();
                                 dialogInterface.dismiss();
                             }
