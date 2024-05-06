@@ -45,4 +45,9 @@ public class AlarmScheduler {
         PendingIntent pendingIntent = getBroadcast(requestCode, cls);
         alarmManager.cancel(pendingIntent);
     }
+
+    public boolean isWorking(int requestCOde, Class<? extends BroadcastReceiver> cls) {
+        Intent intent = new Intent(context, cls);
+        return PendingIntent.getBroadcast(context, requestCOde, intent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE) != null;
+    }
 }

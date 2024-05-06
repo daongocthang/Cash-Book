@@ -34,6 +34,9 @@ public class NotificationUtil {
         manager.notify(new Random().nextInt(), builder.build());
     }
 
+    /**
+     * Create a channel if not exist
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static void createChannel(Context context, String channelId, CharSequence name) {
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -165,6 +166,10 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
 
     private void scheduleAlarm() {
         AlarmScheduler scheduler = AlarmScheduler.from(this);
+        if (scheduler.isWorking(AlarmInfo.REQUEST_CODE_RECEIVER, AlarmReceiver.class)) {
+            return;
+        }
+
         scheduler.setAlarm(AlarmInfo.REQUEST_CODE_RECEIVER,
                 AlarmInfo.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY,
