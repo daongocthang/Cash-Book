@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -53,7 +54,7 @@ public class EditorActivity extends AppCompatActivity {
             }
         }
 
-        binding.autocomplete.attachEditText(binding.edtAmount);
+        binding.autocomplete.attachEditText(binding.edtAmount, binding.getRoot());
 
         if (TextUtils.isEmpty(keyRef)) {
             String dateStr = DateTimeUtil.toString(AlarmInfo.DATE_PATTERN, DateTimeUtil.now());
@@ -66,7 +67,6 @@ public class EditorActivity extends AppCompatActivity {
                 PickerUtil.from(EditorActivity.this)
                         .setPatternDate(AlarmInfo.DATE_PATTERN)
                         .showDatePicker("Select date of payment", binding.tvDateOfPayment);
-                binding.autocomplete.leave();
             }
         });
 
@@ -75,7 +75,6 @@ public class EditorActivity extends AppCompatActivity {
             public void onClick(View view) {
                 boolean isChecked = binding.chkPaid.isChecked();
                 binding.chkPaid.setChecked(!isChecked);
-                binding.autocomplete.leave();
             }
         });
 

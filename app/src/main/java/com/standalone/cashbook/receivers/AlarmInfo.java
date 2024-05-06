@@ -9,7 +9,7 @@ public class AlarmInfo {
     public static final int ALARM_HOUR = 8;
     public static final int ALARM_MINUTE = 0;
     public static String DATE_PATTERN = "dd-MM-yyyy";
-    public static String CHANNEL_ID = "notification_cashbook";
+    public static String CHANNEL_ID = "cashbook_notification_default_channel";
 
     public static String COLLECTION_ID = "liabilities";
 

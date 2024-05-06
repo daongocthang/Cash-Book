@@ -1,4 +1,4 @@
-package com.standalone.core.utils;
+package com.standalone.core.components;
 
 import android.content.Context;
 import android.text.Editable;
@@ -6,11 +6,11 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,17 +21,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.standalone.core.R;
 import com.standalone.core.adapters.AutoCompleteAdapter;
+import com.standalone.core.utils.SoftKeyboard;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
-public class SuggestionView extends LinearLayout implements TextWatcher {
-    static final String TAG = SuggestionView.class.getSimpleName();
-
+/**
+ * Requirement: activity.windowSoftInputMode="adjustResize"
+ */
+public class NumberSuggestionView extends LinearLayout implements TextWatcher, SoftKeyboard.KeyboardObserver {
+    static final String TAG = NumberSuggestionView.class.getSimpleName();
     static final int MAX_LONG_FORMAT = 18;
 
     Context context;
+    SoftKeyboard softKeyboard;
     AutoCompleteAdapter adapter;
     int threshold = 0;
     int completionThreshold = 10;
@@ -42,24 +47,25 @@ public class SuggestionView extends LinearLayout implements TextWatcher {
     RecyclerView recycler;
 
 
-    public SuggestionView(Context context, @Nullable AttributeSet attrs) {
+    public NumberSuggestionView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public SuggestionView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public NumberSuggestionView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
 
-    public SuggestionView(Context context) {
+    public NumberSuggestionView(Context context) {
         super(context);
         init(context);
     }
 
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.suggestion_view, this, true);
-        this.context = context;
+        this.bringToFront();
+
         recycler = findViewById(R.id.recycler);
         adapter = new AutoCompleteAdapter(new AutoCompleteAdapter.OnItemClickListener() {
             @Override
@@ -68,22 +74,12 @@ public class SuggestionView extends LinearLayout implements TextWatcher {
 
                 editText.setText(text);
                 editText.setSelection(text.length());
-                setVisibility(INVISIBLE);
-                hideSoftKeyboard();
+                softKeyboard.hide();
             }
         });
 
-        this.bringToFront();
-    }
-
-    public void leave() {
-        if (editText != null) editText.clearFocus();
-    }
-
-    public void focus() {
-        if (editText == null) return;
-        editText.requestFocus();
-        editText.setText(editText.getText());
+        this.context = context;
+        this.setVisibility(INVISIBLE);
     }
 
     public void setThreshold(int threshold) {
@@ -102,7 +98,7 @@ public class SuggestionView extends LinearLayout implements TextWatcher {
         this.reverse = reverse;
     }
 
-    public void attachEditText(TextInputEditText editText) {
+    public void attachEditText(TextInputEditText editText, View parentView) {
         recycler.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -111,42 +107,29 @@ public class SuggestionView extends LinearLayout implements TextWatcher {
         this.editText = editText;
         this.editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         this.editText.addTextChangedListener(this);
+
         this.editText.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                if (!b) {
-                    adapter.clear();
-                } else {
-                    editText.setText(editText.getText());
-                }
-
+                setVisibility(b ? VISIBLE : INVISIBLE);
             }
         });
+
         this.editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 int result = i & EditorInfo.IME_ACTION_DONE;
                 if (result == EditorInfo.IME_ACTION_DONE) {
-                    hideSoftKeyboard();
+                    softKeyboard.hide();
                 }
                 return false;
             }
         });
-        this.editText.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                focus();
-            }
-        });
+
+        softKeyboard = new SoftKeyboard(context, parentView);
+        softKeyboard.setOnVisibilityChangedListener(this);
     }
 
-    private void hideSoftKeyboard() {
-        assert editText != null;
-        View view = editText.getRootView();
-        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        adapter.clear();
-    }
 
     @Override
     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -201,4 +184,15 @@ public class SuggestionView extends LinearLayout implements TextWatcher {
         editText.addTextChangedListener(this);
     }
 
+    @Override
+    public void onVisibilityChanged(boolean visible) {
+        if (editText == null) return;
+        String textInput = Objects.requireNonNull(editText.getText()).toString();
+        if (visible && !TextUtils.isEmpty(textInput)) {
+            editText.setText(textInput);
+        }
+
+        setVisibility(visible ? VISIBLE : INVISIBLE);
+        Log.d(TAG, String.format("keyboard is %s", visible ? "shown" : "hidden"));
+    }
 }

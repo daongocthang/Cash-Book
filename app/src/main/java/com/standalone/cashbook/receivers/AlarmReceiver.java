@@ -71,6 +71,8 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
         }
         if (sum > 0) {
+            String msg=context.getString(R.string.notification_msg) + String.format(Locale.US, " %,d VND", sum);
+            LogUtil.write(context,msg);
             Intent specifiedIntent = new Intent(context, MainActivity.class);
             int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
             PendingIntent pendingActivity = PendingIntent.getActivity(context, AlarmInfo.REQUEST_CODE_ACTIVITY, specifiedIntent, flags);
@@ -78,7 +80,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                     AlarmInfo.CHANNEL_ID,
                     R.drawable.ic_launcher_background,
                     context.getString(R.string.app_name),
-                    context.getString(R.string.notification_msg) + String.format(Locale.US, "%,d VND", sum),
+                    msg,
                     pendingActivity
             );
         }

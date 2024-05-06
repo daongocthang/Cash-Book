@@ -30,9 +30,8 @@ import com.standalone.core.adapters.RecyclerItemTouchHelper;
 import com.standalone.core.dialogs.ProgressDialog;
 import com.standalone.core.services.AlarmScheduler;
 import com.standalone.core.tools.SmsReader;
-import com.standalone.core.utils.DateTimeUtil;
 import com.standalone.core.utils.DialogUtil;
-import com.standalone.core.utils.LogUtil;
+import com.standalone.core.utils.NotificationUtil;
 import com.standalone.core.utils.StorageUtil;
 
 import java.util.ArrayList;
@@ -41,13 +40,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity implements SmsReader.ValueEventListener {
     static final String TAG = MainActivity.class.getSimpleName();
     static final String SMS_PATTERN = "So du ([0-9\\.]+) VND";
     static final String SMS_ADDRESS = "VTMONEY";
-    static final int JOB_ID = 123;
+
 
     ActivityMainBinding binding;
     PayableAdapter adapter;
@@ -69,15 +67,16 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
             finish();
             return;
         }
-
-        StorageUtil.requirePermission(this);
-
-
-        reader = new SmsReader(this);
         pattern = Pattern.compile(SMS_PATTERN);
 
-        invokeSmsReader();
+        // Require permission
+        StorageUtil.requirePermission(this);
+        reader = new SmsReader(this);
+        requireReadSmsPermission();
         scheduleAlarm();
+
+        // Declare Notification
+        NotificationUtil.createChannel(this, AlarmInfo.CHANNEL_ID, "Default Channel");
 
         adapter = new PayableAdapter(this);
         binding.recycler.setAdapter(adapter);
@@ -156,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
         return super.onOptionsItemSelected(item);
     }
 
-    private void invokeSmsReader() {
+    private void requireReadSmsPermission() {
         if (reader.checkReadSmsPermission() == PackageManager.PERMISSION_GRANTED) {
             reader.read(this);
         } else {
