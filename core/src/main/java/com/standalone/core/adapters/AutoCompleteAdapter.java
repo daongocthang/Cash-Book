@@ -1,5 +1,6 @@
 package com.standalone.core.adapters;
 
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -9,10 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.standalone.core.R;
 
-public class SuggestionsAdapter extends BaseAdapter<String, SuggestionsAdapter.ViewHolder> {
+import java.util.Collections;
+
+public class AutoCompleteAdapter extends BaseAdapter<String, AutoCompleteAdapter.ViewHolder> {
     private final OnItemClickListener listener;
 
-    public SuggestionsAdapter(OnItemClickListener listener) {
+    public AutoCompleteAdapter(OnItemClickListener listener) {
         this.listener = listener;
     }
 
@@ -32,16 +35,16 @@ public class SuggestionsAdapter extends BaseAdapter<String, SuggestionsAdapter.V
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            textView = itemView.findViewById(R.id.textView);
+            textView = itemView.findViewById(R.id.item);
         }
 
-        public void bind(String text, OnItemClickListener listener, SuggestionsAdapter parent) {
+        public void bind(String text, OnItemClickListener listener, AutoCompleteAdapter parent) {
             textView.setText(text);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     listener.onClick(text);
-                    parent.clear();
+                    // parent.clear();
                 }
             });
         }

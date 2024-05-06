@@ -10,6 +10,7 @@ import com.standalone.cashbook.activities.MainActivity;
 import com.standalone.cashbook.controllers.FireStoreHelper;
 import com.standalone.cashbook.models.PayableModel;
 import com.standalone.core.utils.DateTimeUtil;
+import com.standalone.core.utils.LogUtil;
 import com.standalone.core.utils.NotificationUtil;
 
 import java.util.ArrayList;
@@ -27,7 +28,12 @@ public class AlarmReceiver extends BroadcastReceiver {
         helper.fetch(PayableModel.class, new FireStoreHelper.OnFetchCompleteListener<PayableModel>() {
             @Override
             public void onFetchComplete(ArrayList<PayableModel> data) {
-                doWork(context, data);
+                try {
+                    doWork(context, data);
+                    LogUtil.write(context, "Receiver completed");
+                } catch (Exception e) {
+                    LogUtil.write(context, e.getMessage());
+                }
             }
         });
     }
@@ -40,18 +46,28 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         int sum = 0;
         for (PayableModel model : payableList) {
-            Date date = DateTimeUtil.parseTime(AlarmInfo.DATE_PATTERN, model.getDate());
-            Calendar dateOfPayment = Calendar.getInstance();
-            dateOfPayment.setTime(date);
-            if (today.get(Calendar.DATE) == 1 && model.isPaid()) {
-                model.setPaid(false);
-                dateOfPayment.add(Calendar.MONTH, 1);
-                model.setDate(DateTimeUtil.toString(AlarmInfo.DATE_PATTERN, dateOfPayment.getTime()));
+            if (today.get(Calendar.DATE) == 1) {
+                if (model.isPaid()) {
+                    model.setPaid(false);
+                    model.setDate(nextMonth(model.getDate()));
+                } else {
+                    model.increaseNextPay();
+                }
                 helper.update(model.getKey(), model);
             }
 
-            if (today.after(dateOfPayment) && !model.isPaid()) {
-                sum += model.getAmount();
+            Date date = DateTimeUtil.parseTime(AlarmInfo.DATE_PATTERN, model.getDate());
+            Calendar dateOfPayment = Calendar.getInstance();
+            dateOfPayment.setTime(date);
+            if (today.after(dateOfPayment)) {
+                if (!model.isPaid()) {
+                    sum += model.getAmount();
+                } else if (model.getNextPay() > 0) {
+                    model.decreaseNextPay();
+                    model.setDate(nextMonth(model.getDate()));
+                    model.setPaid(false);
+                    helper.update(model.getKey(), model);
+                }
             }
         }
         if (sum > 0) {
@@ -61,10 +77,17 @@ public class AlarmReceiver extends BroadcastReceiver {
             NotificationUtil.post(context,
                     AlarmInfo.CHANNEL_ID,
                     R.drawable.ic_launcher_background,
-                    context.getString(R.string.notification_title),
+                    context.getString(R.string.app_name),
                     context.getString(R.string.notification_msg) + String.format(Locale.US, "%,d VND", sum),
                     pendingActivity
             );
         }
+    }
+
+    private String nextMonth(String dateAsString) {
+        Date date = DateTimeUtil.parseTime(AlarmInfo.DATE_PATTERN, dateAsString);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return DateTimeUtil.toString(AlarmInfo.DATE_PATTERN, cal.getTime());
     }
 }

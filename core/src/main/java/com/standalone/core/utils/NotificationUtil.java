@@ -14,6 +14,10 @@ import androidx.core.app.NotificationManagerCompat;
 
 import java.util.Random;
 
+/**
+ * Requirement:
+ * <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+ */
 @SuppressLint("MissingPermission")
 public class NotificationUtil {
     private final static long[] VibrationPattern = new long[]{100, 1000, 200, 340};

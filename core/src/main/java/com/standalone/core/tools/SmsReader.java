@@ -13,6 +13,10 @@ import androidx.core.content.ContextCompat;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Requirement:
+ * <uses-permission android:name="android.permission.READ_SMS" />
+ */
 public class SmsReader {
     public static final int READ_SMS_PERMISSION_CODE = 1;
 

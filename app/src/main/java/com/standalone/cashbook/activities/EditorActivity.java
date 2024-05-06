@@ -2,9 +2,7 @@ package com.standalone.cashbook.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -54,38 +52,13 @@ public class EditorActivity extends AppCompatActivity {
                 binding.chkPaid.setChecked(model.isPaid());
             }
         }
+
+        binding.autocomplete.attachEditText(binding.edtAmount);
+
         if (TextUtils.isEmpty(keyRef)) {
             String dateStr = DateTimeUtil.toString(AlarmInfo.DATE_PATTERN, DateTimeUtil.now());
             binding.tvDateOfPayment.setText(dateStr);
         }
-
-        binding.edtAmount.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                binding.edtAmount.removeTextChangedListener(this);
-                String textInput = s.toString();
-                if (textInput.contains(",")) {
-                    textInput = textInput.replace(",", "");
-                }
-                long longValue = Long.parseLong(textInput);
-
-                String formattedTextInput = String.format(Locale.US, "%,d", longValue);
-                binding.edtAmount.setText(formattedTextInput);
-                binding.edtAmount.setSelection(formattedTextInput.length());
-
-                binding.edtAmount.addTextChangedListener(this);
-            }
-        });
 
         binding.btnCalendar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +66,7 @@ public class EditorActivity extends AppCompatActivity {
                 PickerUtil.from(EditorActivity.this)
                         .setPatternDate(AlarmInfo.DATE_PATTERN)
                         .showDatePicker("Select date of payment", binding.tvDateOfPayment);
+                binding.autocomplete.leave();
             }
         });
 
@@ -101,6 +75,7 @@ public class EditorActivity extends AppCompatActivity {
             public void onClick(View view) {
                 boolean isChecked = binding.chkPaid.isChecked();
                 binding.chkPaid.setChecked(!isChecked);
+                binding.autocomplete.leave();
             }
         });
 
@@ -129,6 +104,7 @@ public class EditorActivity extends AppCompatActivity {
         Task<Void> task;
         if (TextUtils.isEmpty(keyRef)) {
             model.setKey(UUID.randomUUID().toString());
+            model.setNextPay(0);
             task = helper.create(model);
         } else {
             task = helper.update(keyRef, model);

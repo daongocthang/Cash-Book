@@ -30,7 +30,10 @@ import com.standalone.core.adapters.RecyclerItemTouchHelper;
 import com.standalone.core.dialogs.ProgressDialog;
 import com.standalone.core.services.AlarmScheduler;
 import com.standalone.core.tools.SmsReader;
+import com.standalone.core.utils.DateTimeUtil;
 import com.standalone.core.utils.DialogUtil;
+import com.standalone.core.utils.LogUtil;
+import com.standalone.core.utils.StorageUtil;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -67,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
             return;
         }
 
+        StorageUtil.requirePermission(this);
+
+
         reader = new SmsReader(this);
         pattern = Pattern.compile(SMS_PATTERN);
 
@@ -83,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
             @Override
             public void onFetchComplete(ArrayList<PayableModel> data) {
                 adapter.setItemList(data);
-                binding.liabilitiesTV.setText(String.format(Locale.US,"%,d", adapter.getTotalAmount()));
+                binding.liabilitiesTV.setText(String.format(Locale.US, "%,d", adapter.getTotalAmount()));
                 progressDialog.dismiss();
             }
         });

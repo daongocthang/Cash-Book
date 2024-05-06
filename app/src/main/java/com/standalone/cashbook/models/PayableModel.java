@@ -1,18 +1,15 @@
 package com.standalone.cashbook.models;
 
-import com.standalone.core.requests.dbase.Column;
-
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PayableModel extends BaseModel {
 
     String title;
-    long amount;
+    long amount ;
     String date;
     boolean paid;
-
+    long nextPay;
 
     public String getTitle() {
         return title;
@@ -46,6 +43,23 @@ public class PayableModel extends BaseModel {
         this.paid = paid;
     }
 
+    public long getNextPay() {
+        return nextPay;
+    }
+
+
+    public void setNextPay(long nextPay) {
+        this.nextPay = nextPay;
+    }
+
+    public void increaseNextPay() {
+        nextPay++;
+    }
+
+    public void decreaseNextPay() {
+        nextPay--;
+    }
+
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
@@ -53,6 +67,7 @@ public class PayableModel extends BaseModel {
         map.put("amount", amount);
         map.put("date", date);
         map.put("paid", paid);
+        map.put("nextPay", nextPay);
         return map;
     }
 }
