@@ -15,16 +15,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.standalone.cashbook.R;
 import com.standalone.cashbook.activities.EditorActivity;
 import com.standalone.cashbook.models.PayableModel;
+import com.standalone.cashbook.receivers.AlarmInfo;
 import com.standalone.core.adapters.BaseAdapter;
+import com.standalone.core.utils.DateTimeUtil;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.ViewHolder> {
 
     final Context context;
+
     public PayableAdapter(Context context) {
         this.context = context;
     }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -41,12 +47,14 @@ public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.Vie
         if (model.isPaid())
             holder.viewIndicator.setBackgroundResource(com.standalone.core.R.color.success_dark);
     }
+
     public PayableModel removeItem(int position) {
         PayableModel model = itemList.get(position);
         itemList.remove(position);
         notifyItemRemoved(position);
         return model;
     }
+
     public void editItem(int position) {
         Intent intent = new Intent(context, EditorActivity.class);
         PayableModel model = getItem(position);
@@ -55,15 +63,21 @@ public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.Vie
         intent.putExtra("bundle", bundle);
         context.startActivity(intent);
     }
+
     public int getTotalAmount() {
+        Calendar today = Calendar.getInstance();
         int total = 0;
         for (PayableModel item : itemList) {
             if (item.isPaid()) continue;
-
-            total += item.getAmount();
+            Calendar dateOfPayment = Calendar.getInstance();
+            dateOfPayment.setTime(DateTimeUtil.parseTime(AlarmInfo.DATE_PATTERN, item.getDate()));
+            if (dateOfPayment.get(Calendar.MONTH) <= today.get(Calendar.MONTH)) {
+                total += item.getAmount();
+            }
         }
         return total;
     }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textviewTitle;
         TextView textViewAmount;

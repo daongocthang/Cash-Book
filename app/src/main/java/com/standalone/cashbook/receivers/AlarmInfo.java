@@ -15,6 +15,7 @@ public class AlarmInfo {
 
     public static long getTimeInMillis() {
         Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, ALARM_HOUR);
         calendar.set(Calendar.MINUTE, ALARM_MINUTE);
         calendar.set(Calendar.SECOND, 0);

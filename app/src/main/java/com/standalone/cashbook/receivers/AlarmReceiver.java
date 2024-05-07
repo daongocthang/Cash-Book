@@ -46,6 +46,12 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         int sum = 0;
         for (PayableModel model : payableList) {
+            Date date = DateTimeUtil.parseTime(AlarmInfo.DATE_PATTERN, model.getDate());
+            Calendar dateOfPayment = Calendar.getInstance();
+            dateOfPayment.setTime(date);
+
+            if (today.get(Calendar.MONTH) <= dateOfPayment.get(Calendar.MONTH)) continue;
+
             if (today.get(Calendar.DATE) == 1) {
                 if (model.isPaid()) {
                     model.setPaid(false);
@@ -56,9 +62,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                 helper.update(model.getKey(), model);
             }
 
-            Date date = DateTimeUtil.parseTime(AlarmInfo.DATE_PATTERN, model.getDate());
-            Calendar dateOfPayment = Calendar.getInstance();
-            dateOfPayment.setTime(date);
             if (today.after(dateOfPayment)) {
                 if (!model.isPaid()) {
                     sum += model.getAmount();
@@ -71,8 +74,8 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
         }
         if (sum > 0) {
-            String msg=context.getString(R.string.notification_msg) + String.format(Locale.US, " %,d VND", sum);
-            LogUtil.write(context,msg);
+            String msg = context.getString(R.string.notification_msg) + String.format(Locale.US, " %,d VND", sum);
+            LogUtil.write(context, msg);
             Intent specifiedIntent = new Intent(context, MainActivity.class);
             int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
             PendingIntent pendingActivity = PendingIntent.getActivity(context, AlarmInfo.REQUEST_CODE_ACTIVITY, specifiedIntent, flags);
