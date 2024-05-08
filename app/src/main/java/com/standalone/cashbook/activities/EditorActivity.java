@@ -54,7 +54,7 @@ public class EditorActivity extends AppCompatActivity {
             }
         }
 
-        binding.autocomplete.setThreshold(3);
+        binding.autocomplete.setThreshold(2);
         binding.autocomplete.attachEditText(binding.edtAmount, binding.getRoot());
 
         if (TextUtils.isEmpty(keyRef)) {
@@ -82,9 +82,11 @@ public class EditorActivity extends AppCompatActivity {
         binding.submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                manager.refresh();
                 manager.doValidation(binding.tilTitle).checkEmpty();
                 manager.doValidation(binding.tilAmount).checkEmpty();
-                if (manager.isAllValid()) onSubmit();
+                if (manager.isAllValid())
+                    onSubmit();
             }
         });
     }

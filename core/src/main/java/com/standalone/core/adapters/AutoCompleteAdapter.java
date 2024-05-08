@@ -1,6 +1,5 @@
 package com.standalone.core.adapters;
 
-import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -9,8 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.standalone.core.R;
-
-import java.util.Collections;
 
 public class AutoCompleteAdapter extends BaseAdapter<String, AutoCompleteAdapter.ViewHolder> {
     private final OnItemClickListener listener;
@@ -28,6 +25,11 @@ public class AutoCompleteAdapter extends BaseAdapter<String, AutoCompleteAdapter
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.bind(getItem(position), listener, this);
+    }
+
+    public void addItem(String str) {
+        itemList.add(str);
+        notifyItemChanged(itemList.size()-1);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
