@@ -54,6 +54,7 @@ public class EditorActivity extends AppCompatActivity {
             }
         }
 
+        binding.autocomplete.setThreshold(3);
         binding.autocomplete.attachEditText(binding.edtAmount, binding.getRoot());
 
         if (TextUtils.isEmpty(keyRef)) {

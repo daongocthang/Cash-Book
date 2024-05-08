@@ -41,7 +41,7 @@ public class NumberSuggestionView extends LinearLayout implements TextWatcher, S
     int threshold = 0;
     int completionThreshold = 10;
     int size = 3;
-
+    int skip = 0;
     boolean reverse = false;
     TextInputEditText editText;
     RecyclerView recycler;
@@ -92,6 +92,10 @@ public class NumberSuggestionView extends LinearLayout implements TextWatcher, S
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public void setSkip(int skip) {
+        this.skip = skip;
     }
 
     public void setReverse(boolean reverse) {
@@ -157,14 +161,14 @@ public class NumberSuggestionView extends LinearLayout implements TextWatcher, S
                 int completion = Math.min(completionThreshold, MAX_LONG_FORMAT);
                 if (textInput.length() > completion) {
                     textInput = textInput.substring(0, completion);
-                } else if (textInput.length() > threshold) {
+                } else if (textInput.length() > skip) {
                     final List<String> itemList = new ArrayList<>();
 
                     long longInput = Long.parseLong(textInput);
                     int count = 0;
                     while (count < size) {
                         count++;
-                        long suggestion = (long) (longInput * Math.pow(10, count));
+                        long suggestion = (long) (longInput * Math.pow(10, count + threshold));
                         if (String.valueOf(suggestion).length() > completion) break;
                         itemList.add(String.format(Locale.US, "%,d", suggestion));
                     }
