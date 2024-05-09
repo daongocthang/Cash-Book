@@ -19,7 +19,8 @@ public class AutoCompleteAdapter extends BaseAdapter<String, AutoCompleteAdapter
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(instantiateItemView(R.layout.simple_list_item, parent));
+        View view = instantiateItemView(R.layout.simple_list_item, parent);
+        return new ViewHolder(view);
     }
 
     @Override
@@ -29,7 +30,7 @@ public class AutoCompleteAdapter extends BaseAdapter<String, AutoCompleteAdapter
 
     public void addItem(String str) {
         itemList.add(str);
-        notifyItemChanged(itemList.size()-1);
+        notifyItemChanged(itemList.size() - 1);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -46,7 +47,6 @@ public class AutoCompleteAdapter extends BaseAdapter<String, AutoCompleteAdapter
                 @Override
                 public void onClick(View view) {
                     listener.onClick(text);
-                    // parent.clear();
                 }
             });
         }

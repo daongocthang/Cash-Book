@@ -162,8 +162,6 @@ public class NumberSuggestionView extends LinearLayout implements TextWatcher, S
                 if (textInput.length() > completion) {
                     textInput = textInput.substring(0, completion);
                 } else if (textInput.length() > skip) {
-                    final List<String> itemList = new ArrayList<>();
-
                     long longInput = Long.parseLong(textInput);
                     int count = 0;
                     while (count < size) {
@@ -171,9 +169,7 @@ public class NumberSuggestionView extends LinearLayout implements TextWatcher, S
                         long suggestion = (long) (longInput * Math.pow(10, count + threshold));
                         if (String.valueOf(suggestion).length() > completion) break;
                         adapter.addItem(String.format(Locale.US, "%,d", suggestion));
-
                     }
-//                    adapter.setItemList(itemList);
                 }
                 textInput = String.format(Locale.US, "%,d", Long.parseLong(textInput));
 
