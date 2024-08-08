@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +17,6 @@ import com.standalone.cashbook.receivers.AlarmInfo;
 import com.standalone.core.dialogs.ProgressDialog;
 import com.standalone.core.utils.DateTimeUtil;
 import com.standalone.core.utils.DialogUtil;
-import com.standalone.core.utils.PickerUtil;
 import com.standalone.core.utils.ValidationManager;
 
 import java.util.Locale;
@@ -30,7 +28,7 @@ public class EditorActivity extends AppCompatActivity {
     ValidationManager manager;
     FireStoreHelper<PayableModel> helper;
     PayableModel model;
-    String keyRef;
+    String key;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +44,9 @@ public class EditorActivity extends AppCompatActivity {
         if (bundle != null) {
             model = (PayableModel) bundle.getSerializable("payment");
             if (model != null) {
-                keyRef = model.getKey();
+                key = model.getKey();
                 binding.edtTitle.setText(model.getTitle());
                 binding.edtAmount.setText(String.format(Locale.US, "%,d", model.getAmount()));
-                binding.tvDateOfPayment.setText(model.getDate());
                 binding.chkPaid.setChecked(model.isPaid());
             }
         }
@@ -57,20 +54,6 @@ public class EditorActivity extends AppCompatActivity {
         binding.autocomplete.setThreshold(2);
         binding.autocomplete.setSize(4);
         binding.autocomplete.attachEditText(binding.edtAmount, binding.getRoot());
-
-        if (TextUtils.isEmpty(keyRef)) {
-            String dateStr = DateTimeUtil.toString(AlarmInfo.DATE_PATTERN, DateTimeUtil.now());
-            binding.tvDateOfPayment.setText(dateStr);
-        }
-
-        binding.btnCalendar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                PickerUtil.from(EditorActivity.this)
-                        .setPatternDate(AlarmInfo.DATE_PATTERN)
-                        .showDatePicker("Select date of payment", binding.tvDateOfPayment);
-            }
-        });
 
         binding.chkPaid.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,22 +78,21 @@ public class EditorActivity extends AppCompatActivity {
     private void onSubmit() {
         String title = Objects.requireNonNull(binding.edtTitle.getText()).toString().trim();
         String amount = Objects.requireNonNull(binding.edtAmount.getText()).toString().trim().replace(",", "");
-        String dateStr = binding.tvDateOfPayment.getText().toString();
 
         long longAmount = Long.parseLong(amount);
 
         PayableModel model = new PayableModel();
         model.setTitle(title);
         model.setAmount(longAmount);
-        model.setDate(dateStr);
         model.setPaid(binding.chkPaid.isChecked());
         Task<Void> task;
-        if (TextUtils.isEmpty(keyRef)) {
+        if (TextUtils.isEmpty(key)) {
+            // Create
             model.setKey(UUID.randomUUID().toString());
-            model.setNextPay(0);
             task = helper.create(model);
         } else {
-            task = helper.update(keyRef, model);
+            // Update
+            task = helper.update(key, model);
         }
 
         ProgressDialog progressDialog = DialogUtil.showProgressDialog(this);

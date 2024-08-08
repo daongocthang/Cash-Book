@@ -1,15 +1,19 @@
 package com.standalone.cashbook.models;
 
+import com.google.firebase.Timestamp;
+import com.standalone.core.utils.DateTimeUtil;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PayableModel extends BaseModel {
 
     String title;
-    long amount ;
-    String date;
+    long amount;
+    long updatedAt;
     boolean paid;
-    long nextPay;
 
     public String getTitle() {
         return title;
@@ -27,12 +31,8 @@ public class PayableModel extends BaseModel {
         this.amount = amount;
     }
 
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
+    public Date getUpdatedAt() {
+        return DateTimeUtil.getDateTime(updatedAt);
     }
 
     public boolean isPaid() {
@@ -43,31 +43,13 @@ public class PayableModel extends BaseModel {
         this.paid = paid;
     }
 
-    public long getNextPay() {
-        return nextPay;
-    }
-
-
-    public void setNextPay(long nextPay) {
-        this.nextPay = nextPay;
-    }
-
-    public void increaseNextPay() {
-        nextPay++;
-    }
-
-    public void decreaseNextPay() {
-        nextPay--;
-    }
-
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("title", title);
         map.put("amount", amount);
-        map.put("date", date);
+        map.put("updatedAt", new Date().getTime());
         map.put("paid", paid);
-        map.put("nextPay", nextPay);
         return map;
     }
 }

@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.Locale;
 
 public class DateTimeUtil {
+    public static Date getDateTime(long timestamp){
+        return new Date(timestamp);
+    }
 
     public static Date parseTime(String fmt, String str) {
         SimpleDateFormat sdf = new SimpleDateFormat(fmt, Locale.US);

@@ -1,13 +1,11 @@
 package com.standalone.cashbook.activities;
 
-import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -89,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
             @Override
             public void onFetchComplete(ArrayList<PayableModel> data) {
                 adapter.setItemList(data);
-                binding.liabilitiesTV.setText(String.format(Locale.US, "%,d", adapter.getTotalAmount()));
+                binding.liabilitiesTV.setText(String.format(Locale.US, "%,d", adapter.getTotalLiabilities()));
                 progressDialog.dismiss();
             }
         });
@@ -113,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
                                 helper.remove(model.getKey()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-                                        binding.liabilitiesTV.setText(String.format(Locale.US, "%,d", adapter.getTotalAmount()));
+                                        binding.liabilitiesTV.setText(String.format(Locale.US, "%,d", adapter.getTotalLiabilities()));
                                         progressDialog.dismiss();
                                     }
                                 });
@@ -132,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
         });
         itemTouchHelper.attachToRecyclerView(binding.recycler);
 
-        binding.liabilitiesTV.setText(String.format(Locale.US, "%,d", adapter.getTotalAmount()));
+        binding.liabilitiesTV.setText(String.format(Locale.US, "%,d", adapter.getTotalLiabilities()));
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

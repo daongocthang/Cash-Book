@@ -2,8 +2,6 @@ package com.standalone.cashbook.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.standalone.cashbook.R;
 import com.standalone.cashbook.activities.EditorActivity;
 import com.standalone.cashbook.models.PayableModel;
-import com.standalone.cashbook.receivers.AlarmInfo;
 import com.standalone.core.adapters.BaseAdapter;
 import com.standalone.core.utils.DateTimeUtil;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.ViewHolder> {
@@ -43,7 +38,7 @@ public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.Vie
         PayableModel model = getItem(position);
         holder.textviewTitle.setText(model.getTitle());
         holder.textViewAmount.setText(String.format(Locale.US, "%,d", model.getAmount()));
-        holder.textViewDate.setText(model.getDate());
+        holder.textViewDate.setText(DateTimeUtil.toString("dd-MM-yyyy",model.getUpdatedAt()));
         if (model.isPaid())
             holder.viewIndicator.setBackgroundResource(com.standalone.core.R.color.success_dark);
     }
@@ -64,16 +59,11 @@ public class PayableAdapter extends BaseAdapter<PayableModel, PayableAdapter.Vie
         context.startActivity(intent);
     }
 
-    public int getTotalAmount() {
-        Calendar today = Calendar.getInstance();
+    public int getTotalLiabilities() {
         int total = 0;
         for (PayableModel item : itemList) {
             if (item.isPaid()) continue;
-            Calendar dateOfPayment = Calendar.getInstance();
-            dateOfPayment.setTime(DateTimeUtil.parseTime(AlarmInfo.DATE_PATTERN, item.getDate()));
-            if (dateOfPayment.get(Calendar.MONTH) <= today.get(Calendar.MONTH)) {
-                total += item.getAmount();
-            }
+            total += item.getAmount();
         }
         return total;
     }
