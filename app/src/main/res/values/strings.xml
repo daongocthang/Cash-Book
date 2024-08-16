@@ -32,4 +32,10 @@
     <string name="helper_forget_password">
         Vui lòng nhập Email bạn đã dùng để khôi phục mật khẩu.
     </string>
+    <string name="prompt_info_title">Xác thực sinh trắc học</string>
+    <string name="prompt_info_description">Yêu cầu xác thực</string>
+    <string name="prompt_info_cancel">Hủy bỏ</string>
+
+    <string name="msg_login_failure">Email hoặc mật khẩu không đúng.</string>
+
 </resources>

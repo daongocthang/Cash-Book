@@ -53,7 +53,7 @@ public class RegisterActivity extends AppCompatActivity {
         binding.btnLoginHere.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(RegisterActivity.this, SignInActivity.class));
+                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                 finish();
             }
         });

@@ -21,7 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.standalone.cashbook.R;
 import com.standalone.cashbook.adapters.PayableAdapter;
 import com.standalone.cashbook.controllers.FireStoreHelper;
-import com.standalone.cashbook.databinding.ActivityMainBinding;
+import com.standalone.cashbook.databinding.ActivityHomeBinding;
 import com.standalone.cashbook.models.PayableModel;
 import com.standalone.cashbook.receivers.AlarmInfo;
 import com.standalone.cashbook.receivers.AlarmReceiver;
@@ -30,7 +30,6 @@ import com.standalone.core.dialogs.ProgressDialog;
 import com.standalone.core.services.AlarmScheduler;
 import com.standalone.core.tools.SmsReader;
 import com.standalone.core.utils.DialogUtil;
-import com.standalone.core.utils.NotificationUtil;
 import com.standalone.core.utils.StorageUtil;
 
 import java.util.ArrayList;
@@ -40,32 +39,24 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MainActivity extends AppCompatActivity implements SmsReader.ValueEventListener {
-    static final String TAG = MainActivity.class.getSimpleName();
+public class HomeActivity extends AppCompatActivity implements SmsReader.ValueEventListener {
+    static final String TAG = HomeActivity.class.getSimpleName();
     static final String SMS_PATTERN = "So du ([0-9\\.]+) VND";
     static final String SMS_ADDRESS = "VTMONEY";
 
-
-    ActivityMainBinding binding;
+    ActivityHomeBinding binding;
     PayableAdapter adapter;
     SmsReader reader;
     Pattern pattern;
-    FirebaseAuth auth;
     FireStoreHelper<PayableModel> helper;
     ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() == null) {
-            startActivity(new Intent(this, SignInActivity.class));
-            finish();
-            return;
-        }
         pattern = Pattern.compile(SMS_PATTERN);
 
         // Require permission
@@ -75,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
         scheduleAlarm();
 
         // Declare Notification
-        NotificationUtil.createChannel(this, AlarmInfo.CHANNEL_ID, "Default Channel");
+        // NotificationUtil.createChannel(this, AlarmInfo.CHANNEL_ID, "Default Channel");
 
         adapter = new PayableAdapter(this);
         binding.recycler.setAdapter(adapter);
@@ -101,8 +92,8 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
 
             @Override
             public void onSwipeRight(int position) {
-                progressDialog = DialogUtil.showProgressDialog(MainActivity.this);
-                new MaterialAlertDialogBuilder(MainActivity.this)
+                progressDialog = DialogUtil.showProgressDialog(HomeActivity.this);
+                new MaterialAlertDialogBuilder(HomeActivity.this)
                         .setMessage(getString(R.string.alert_msg_delete))
                         .setPositiveButton(getString(R.string.accept), new DialogInterface.OnClickListener() {
                             @Override
@@ -134,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, EditorActivity.class));
+                startActivity(new Intent(HomeActivity.this, EditorActivity.class));
             }
         });
     }
@@ -149,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements SmsReader.ValueEv
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.sm_logout) {
             FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(this, SignInActivity.class));
+            startActivity(new Intent(this, LoginActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }

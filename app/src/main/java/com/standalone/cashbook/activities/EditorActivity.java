@@ -15,7 +15,6 @@ import com.standalone.cashbook.databinding.ActivityEditorBinding;
 import com.standalone.cashbook.models.PayableModel;
 import com.standalone.cashbook.receivers.AlarmInfo;
 import com.standalone.core.dialogs.ProgressDialog;
-import com.standalone.core.utils.DateTimeUtil;
 import com.standalone.core.utils.DialogUtil;
 import com.standalone.core.utils.ValidationManager;
 
@@ -100,7 +99,7 @@ public class EditorActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 progressDialog.dismiss();
-                startActivity(new Intent(EditorActivity.this, MainActivity.class));
+                startActivity(new Intent(EditorActivity.this, HomeActivity.class));
                 finish();
             }
         });
