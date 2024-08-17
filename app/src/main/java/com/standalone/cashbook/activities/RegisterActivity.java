@@ -58,7 +58,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        binding.btnSubmit.setOnClickListener(new View.OnClickListener() {
+        binding.btRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 manager.refresh();

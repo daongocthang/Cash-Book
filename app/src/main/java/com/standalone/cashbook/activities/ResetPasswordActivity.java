@@ -41,7 +41,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         auth.setLanguageCode("vi");
         final ValidationManager validator = ValidationManager.getInstance();
-        binding.btnSubmit.setOnClickListener(new View.OnClickListener() {
+        binding.btSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 validator.refresh();

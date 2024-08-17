@@ -43,7 +43,12 @@ public class LoginActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
-        binding.btnSubmit.setOnClickListener(new View.OnClickListener() {
+        boolean isLogin = sharedPreferences.getBoolean("isLogin", false);
+        if (!isLogin) {
+            binding.btFingerprint.setVisibility(View.GONE);
+        }
+
+        binding.btLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -76,15 +81,15 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class));
             }
         });
+
+        binding.btFingerprint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showBiometricPrompt();
+            }
+        });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        boolean isLogin = sharedPreferences.getBoolean("isLogin", false);
-        if (isLogin) showBiometricPrompt();
-    }
 
     void performAuth(@NonNull String email, @NonNull String password) {
         final ProgressDialog progressDialog = DialogUtil.showProgressDialog(this);

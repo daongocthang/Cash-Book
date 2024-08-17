@@ -1,5 +1,7 @@
 package com.standalone.cashbook.controllers;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -41,7 +43,10 @@ public class FireStoreHelper<T extends BaseModel> {
     }
 
     public void fetch(Class<T> classType, OnFetchCompleteListener<T> onFetchCompleteListener) {
-
+        if (auth.getUid() == null) {
+            Log.e(TAG, "Authentication failed");
+            return;
+        }
         reference().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {

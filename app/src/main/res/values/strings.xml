@@ -37,5 +37,6 @@
     <string name="prompt_info_cancel">Hủy bỏ</string>
 
     <string name="msg_login_failure">Email hoặc mật khẩu không đúng.</string>
+    <string name="tap_to_login">Đăng nhập băng vân tay</string>
 
 </resources>
